@@ -11,16 +11,20 @@ and supports **Android 10 and newer** (minSdk 29, targetSdk 36).
 * Fully offline. The app has **no INTERNET permission**, no account, no analytics, no ads and no AI services.
 * Documents are treated as data. Nothing inside them is ever executed.
 
-> **Status:** source complete. This repository was written in a sandbox that could not
-> download the Android SDK or Google's Maven libraries, so the APK has **not been built or run
-> yet**. The pure-Kotlin core (import, security, scheduling, merge, backup) compiles and its 76 unit
-> tests pass. See `TEST-REPORT.md`.
+> **Status:** builds on GitHub Actions. All 76 unit tests, lint and the emulator acceptance run
+> (setup, complete, force-stop + reopen, real reminder notifications with Snooze/Complete,
+> export/restore, update install) pass on Android 16. It has **not yet been tested on the Galaxy
+> S23 Ultra itself**. See `TEST-REPORT.md`.
 
 ---
 
 ## Building from source
 
-Requirements: JDK 17 or newer (Android Studio's bundled JDK 21 works), the Android SDK with
+**Easiest:** every push to `main` builds on GitHub Actions and publishes the APK as a GitHub
+Release (`build-N`) together with emulator acceptance evidence (`acceptance-N`). Open the repo's
+**Releases** page on the phone and download the latest `ProjectSteps-build-N-debug.apk`.
+
+**Locally:** requirements are JDK 17 or newer (Android Studio's bundled JDK 21 works), the Android SDK with
 platform 36, and internet access for the first build (Gradle downloads its dependencies).
 
 ```bash
@@ -32,6 +36,9 @@ platform 36, and internet access for the first build (Gradle downloads its depen
 ./gradlew testDebugUnitTest      # JVM unit tests (import, ZIP/XML security, recurrence, DST, merge, backup)
 ./gradlew lintDebug              # Android lint
 ./gradlew connectedDebugAndroidTest   # Room/database tests on a connected phone or emulator
+
+# Full acceptance run (demo data only) on a connected phone or emulator:
+./gradlew assembleDebug assembleDebugAndroidTest && bash ci/acceptance.sh
 ```
 
 Pinned toolchain (see `gradle/libs.versions.toml`): Gradle 8.14.3 wrapper, Android Gradle Plugin
@@ -57,10 +64,11 @@ Nothing else on the phone is changed.
 ### Updates and signing (important)
 
 Android only installs an update over an existing app if both are signed with the **same key**.
-Debug builds are signed with the debug keystore on the computer that built them
-(`~/.android/debug.keystore`). Build future updates on the same machine or copy that keystore. If
-the key changes you must uninstall first, which deletes the app's data, so export a backup
-before doing that. No production signing key was created. Make one deliberately when you move beyond
+Debug builds are signed with the project's own debug key, `keystore/debug.keystore`
+(standard public "android" passwords), on every machine including CI. So each new debug APK
+installs as an update over the previous one and keeps your data. Don't delete or regenerate that
+file. If the key ever changes you must uninstall first, which deletes the app's data, so export a
+backup before doing that. No production signing key was created. Make one deliberately when you move beyond
 development, keep it safe, and never regenerate it.
 
 ---
@@ -236,8 +244,8 @@ layouts, and colour never used alone (OVERDUE, DONE, BLOCKED are always written 
 
 ## Known limitations
 
-* **Not built or device-tested yet.** See `TEST-REPORT.md`. Expect a short round of compile
-  fixes on first build. The Android UI layer has only been syntax-checked.
+* **Not yet tested on the Galaxy S23 Ultra.** Everything passes on an Android 16 emulator, but One UI
+  battery management, the real screen and the S Pen have not been exercised.
 * **Your real `Project-Checklists.zip` has not been inspected.** The parser handles the common
   Word and Markdown checklist conventions listed above. Unusual layouts will show up as **REVIEW**
   items in the preview rather than being silently misread.
