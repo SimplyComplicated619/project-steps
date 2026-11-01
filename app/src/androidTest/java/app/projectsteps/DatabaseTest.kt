@@ -52,7 +52,7 @@ class DatabaseTest {
     private fun repo(db: AppDatabase) = ProjectRepository(context, db, ReminderScheduler(context, db, SettingsRepository(db.settings())))
 
     @Test
-    fun completionPersistsAcrossReopen() = runBlocking {
+    fun completionPersistsAcrossReopen(): Unit = runBlocking {
         context.deleteDatabase(dbName)
         var db = open()
         seed(db)
@@ -68,7 +68,7 @@ class DatabaseTest {
     }
 
     @Test
-    fun undoRestoresCompletion() = runBlocking {
+    fun undoRestoresCompletion(): Unit = runBlocking {
         context.deleteDatabase(dbName)
         val db = open()
         seed(db)
@@ -81,7 +81,7 @@ class DatabaseTest {
     }
 
     @Test
-    fun taskOrderingAndMove() = runBlocking {
+    fun taskOrderingAndMove(): Unit = runBlocking {
         context.deleteDatabase(dbName)
         val db = open()
         seed(db)
@@ -94,7 +94,7 @@ class DatabaseTest {
     }
 
     @Test
-    fun dependencyCyclesAreRefused() = runBlocking {
+    fun dependencyCyclesAreRefused(): Unit = runBlocking {
         context.deleteDatabase(dbName)
         val db = open()
         seed(db)
@@ -109,7 +109,7 @@ class DatabaseTest {
     }
 
     @Test
-    fun softDeleteHidesAndUndoRestores() = runBlocking {
+    fun softDeleteHidesAndUndoRestores(): Unit = runBlocking {
         context.deleteDatabase(dbName)
         val db = open()
         seed(db)
@@ -123,7 +123,7 @@ class DatabaseTest {
     }
 
     @Test
-    fun recurringCompletionKeepsFutureOccurrences() = runBlocking {
+    fun recurringCompletionKeepsFutureOccurrences(): Unit = runBlocking {
         context.deleteDatabase(dbName)
         val db = open()
         seed(db)

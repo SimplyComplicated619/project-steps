@@ -23,7 +23,7 @@ class Stage4BackupRestoreTest {
     private val c = app.container
 
     @Test
-    fun exportJsonAndZipThenMergeAndReplaceRestore() = runBlocking {
+    fun exportJsonAndZipThenMergeAndReplaceRestore(): Unit = runBlocking {
         val before = c.repo.snapshot.first()
         val doneBefore = before.tasks.count { it.status == "DONE" }
 

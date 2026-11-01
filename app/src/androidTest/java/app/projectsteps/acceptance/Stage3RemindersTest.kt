@@ -73,7 +73,7 @@ class Stage3RemindersTest {
         WorkManager.getInstance(app).getWorkInfosForUniqueWork(ReminderScheduler.workName(id)).get().map { it.state }
 
     @Test
-    fun reminderFiresSnoozesAndCompletesFromNotification() = runBlocking {
+    fun reminderFiresSnoozesAndCompletesFromNotification(): Unit = runBlocking {
         c.settings.set(SettingKeys.NOTIFICATIONS_ENABLED, true)
         val t = task("Open a task and add a reminder")
         val r = reminderFor(t, minutes = 2)
@@ -111,7 +111,7 @@ class Stage3RemindersTest {
     }
 
     @Test
-    fun recurringCompletionKeepsSeriesAndCancelRemovesJob() = runBlocking {
+    fun recurringCompletionKeepsSeriesAndCancelRemovesJob(): Unit = runBlocking {
         val t = task("When the notification appears")
         // Daily at a time earlier today, so today's occurrence is due.
         val earlier = LocalDateTime.of(LocalDate.now(), LocalTime.now().minusHours(1).truncatedTo(ChronoUnit.MINUTES))
@@ -131,7 +131,7 @@ class Stage3RemindersTest {
     }
 
     @Test
-    fun preciseReminderUsesExactAlarm() = runBlocking {
+    fun preciseReminderUsesExactAlarm(): Unit = runBlocking {
         c.settings.set(SettingKeys.NOTIFICATIONS_ENABLED, true)
         assertTrue("exact alarms granted by the test script", c.scheduler.canScheduleExact())
         val t = task("Then try Complete from the notification")
