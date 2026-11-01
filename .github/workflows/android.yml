@@ -1,0 +1,85 @@
+name: Android build
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Android SDK (platform 36)
+        run: |
+          SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKM" --licenses > /dev/null || true
+          "$SDKM" "platforms;android-36" "build-tools;36.0.0" > /dev/null
+
+      - name: Build debug APK
+        id: build
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Unit tests
+        id: tests
+        if: always()
+        continue-on-error: true
+        run: ./gradlew testDebugUnitTest --stacktrace
+
+      - name: Lint
+        id: lint
+        if: always()
+        continue-on-error: true
+        run: ./gradlew lintDebug --stacktrace
+
+      - name: APK size and SHA-256
+        if: steps.build.outcome == 'success'
+        run: |
+          cd app/build/outputs/apk/debug
+          ls -l app-debug.apk
+          sha256sum app-debug.apk | tee app-debug.apk.sha256
+          keytool -printcert -jarfile app-debug.apk | grep -E "SHA256:|Owner" || true
+
+      - name: Upload APK
+        if: steps.build.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: |
+            app/build/outputs/apk/debug/app-debug.apk
+            app/build/outputs/apk/debug/app-debug.apk.sha256
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: |
+            app/build/reports/
+            app/build/test-results/
+            app/schemas/
+          if-no-files-found: ignore
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "| Check | Result |"
+            echo "|---|---|"
+            echo "| Build (assembleDebug) | ${{ steps.build.outcome }} |"
+            echo "| Unit tests | ${{ steps.tests.outcome }} |"
+            echo "| Lint | ${{ steps.lint.outcome }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          test "${{ steps.build.outcome }}" = "success" && test "${{ steps.tests.outcome }}" = "success" && test "${{ steps.lint.outcome }}" = "success"

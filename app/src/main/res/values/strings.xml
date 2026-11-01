@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Project Steps</string>
+    <string name="channel_reminders">Task reminders</string>
+    <string name="channel_reminders_desc">Reminders you scheduled for projects and tasks</string>
+</resources>
