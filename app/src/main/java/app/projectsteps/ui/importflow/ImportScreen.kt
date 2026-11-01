@@ -63,6 +63,8 @@ import app.projectsteps.ui.components.ScreenScaffold
 import app.projectsteps.ui.components.TextInputDialog
 import app.projectsteps.ui.theme.LocalStatusColors
 
+private fun plural(n: Int, word: String) = "$n $word" + if (n == 1) "" else "s"
+
 private val ZIP_TYPES = arrayOf("application/zip", "application/x-zip-compressed", "application/octet-stream")
 private val DOCX_TYPES = arrayOf("application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/octet-stream")
 private val MD_TYPES = arrayOf("text/markdown", "text/x-markdown", "text/plain", "application/octet-stream")
@@ -237,7 +239,7 @@ private fun Preview(s: ImportState.Preview, importVm: ImportViewModel, contentPa
                     Text("Review import", style = MaterialTheme.typography.titleLarge)
                     Text("Nothing is saved until you tap Save. Change anything that was classified wrongly.", style = MaterialTheme.typography.bodySmall)
                     Spacer(Modifier.size(8.dp))
-                    Text("${stats.projects} projects · ${stats.sections} sections · ${stats.tasks} tasks · ${stats.notes} notes")
+                    Text(listOf(plural(stats.projects, "project"), plural(stats.sections, "section"), plural(stats.tasks, "task"), plural(stats.notes, "note")).joinToString(" · "))
                     Text("${stats.completed} marked completed in the source", fontWeight = FontWeight.SemiBold)
                     if (stats.needsReview > 0) Text("${stats.needsReview} item(s) need your review", color = c.blocked, fontWeight = FontWeight.SemiBold)
                     if (stats.excluded > 0) Text("${stats.excluded} item(s) excluded (still listed below)", style = MaterialTheme.typography.bodySmall)

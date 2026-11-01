@@ -83,6 +83,12 @@ room {
 }
 
 dependencies {
+    constraints {
+        // room-testing's schema reader needs kotlinx-serialization >= 1.8 at test runtime; the app's
+        // AndroidX libraries otherwise pin an older one into the shared test classpath.
+        implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0")
+        implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+    }
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)

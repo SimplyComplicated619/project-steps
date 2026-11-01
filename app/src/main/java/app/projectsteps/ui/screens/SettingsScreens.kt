@@ -152,7 +152,7 @@ private fun Para(text: String) {
 private fun ProjectsSettings(vm: MainViewModel) {
     val snap by vm.snapshot.collectAsStateWithLifecycle()
     var confirmDemo by remember { mutableStateOf(false) }
-    ListHeading("Active", Modifier.padding(start = 0.dp))
+    ListHeading("Active", inset = 0.dp)
     snap.activeProjects.forEach { p ->
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             Text(p.name + if (p.isDemo) " (DEMO)" else "", modifier = Modifier.weight(1f).clickable { vm.navigate(Route.Project(p.id)) }.padding(vertical = 12.dp))
@@ -160,7 +160,7 @@ private fun ProjectsSettings(vm: MainViewModel) {
         }
     }
     if (snap.archivedProjects.isNotEmpty()) {
-        ListHeading("Archived", Modifier.padding(start = 0.dp))
+        ListHeading("Archived", inset = 0.dp)
         snap.archivedProjects.forEach { p ->
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                 Text(p.name, modifier = Modifier.weight(1f).padding(vertical = 12.dp))
@@ -323,20 +323,20 @@ private fun ReliabilitySettings(vm: MainViewModel) {
     }
 
     if (isSamsung) {
-        ListHeading("Samsung (One UI) checklist", Modifier.padding(start = 0.dp))
+        ListHeading("Samsung (One UI) checklist", inset = 0.dp)
         Para("1. App info › Battery › choose Unrestricted.")
         Para("2. Settings › Battery › Background usage limits: make sure Project Steps is NOT in “Sleeping apps” or “Deep sleeping apps”. Optionally add it to “Never sleeping apps”.")
         Para("3. Settings › Notifications › App notifications: Project Steps on; “Task reminders” category on.")
         Para("4. If reminders must be on the minute, use “Precise reminder” and allow Alarms & reminders.")
     }
 
-    ListHeading("What to expect", Modifier.padding(start = 0.dp))
+    ListHeading("What to expect", inset = 0.dp)
     Para("App open or in the background, screen on or off: reminders are delivered. Normal reminders may arrive a few minutes late; precise ones are on time when exact alarms are allowed.")
     Para("Force stop: Android cancels ALL of an app's scheduled alarms and jobs after a manual Force Stop, and no app can override that. Reminders resume (missed ones from the last 24 hours are shown) the next time you open Project Steps.")
     Para("Reboot, clock or time-zone change: schedules are rebuilt automatically. Daylight-saving changes keep reminders at the same wall-clock time.")
     Para("No app can guarantee delivery: the phone's power management has the final say.")
 
-    ListHeading("Test", Modifier.padding(start = 0.dp))
+    ListHeading("Test", inset = 0.dp)
     OutlinedButton(onClick = {
         val ok = Notifications.show(
             context,
@@ -394,11 +394,11 @@ private fun BackupSettings(vm: MainViewModel) {
             )
         }
     }
-    ListHeading("Export", Modifier.padding(start = 0.dp))
+    ListHeading("Export", inset = 0.dp)
     BackupRepository.Format.entries.forEach { f ->
         OutlinedButton(onClick = { export(f) }, modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp).heightIn(min = 48.dp)) { Text(f.label) }
     }
-    ListHeading("Restore", Modifier.padding(start = 0.dp))
+    ListHeading("Restore", inset = 0.dp)
     Para("Choose a .json backup or a .zip export. You'll see what's in it before anything changes.")
     Button(onClick = { restoreLauncher.launch(arrayOf("application/json", "application/zip", "application/octet-stream", "text/plain")) }) { Text("Choose backup file…") }
 
@@ -483,7 +483,7 @@ private fun PrivacySettings(vm: MainViewModel) {
         "When off, the lock screen only says “You have a scheduled project task.”",
         settings.lockScreenDetails,
     ) { vm.set(SettingKeys.LOCK_SCREEN_DETAILS, it) }
-    ListHeading("How your data is handled", Modifier.padding(start = 0.dp))
+    ListHeading("How your data is handled", inset = 0.dp)
     Para("• Works fully offline. The app has no Internet permission, so it cannot send anything anywhere.")
     Para("• No account, no analytics, no ads, no AI services.")
     Para("• Imported documents are read as data only. Commands or instructions inside them are never run.")
@@ -496,8 +496,8 @@ private fun AboutSettings() {
     Text("Project Steps", style = MaterialTheme.typography.headlineSmall)
     Para("Version ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}) · ${if (BuildConfig.DEBUG) "debug build" else "release build"}")
     Para("Turns your project checklist documents into interactive checklists with reminders.")
-    ListHeading("Safety", Modifier.padding(start = 0.dp))
+    ListHeading("Safety", inset = 0.dp)
     Para("Project Steps manages project work; it does not perform it. It never executes shell, ADB, server, device-control or network commands, including any written in your documents. Flags such as NEEDS APPROVAL and DESTRUCTIVE ACTION are informational only.")
-    ListHeading("Updates", Modifier.padding(start = 0.dp))
+    ListHeading("Updates", inset = 0.dp)
     Para("Android only installs an update over this app if it is signed with the same key. Debug builds use your computer's debug key: keep that key (or create a proper release key once) and don't regenerate it, or you'll have to uninstall (and lose data unless backed up) before updating.")
 }

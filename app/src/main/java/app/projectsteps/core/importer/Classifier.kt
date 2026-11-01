@@ -213,7 +213,7 @@ object Classifier {
                 )
 
                 else -> {
-                    val item = paragraph(b, id, src, links, docHasCheckboxes)
+                    val item = paragraph(b, id, src, links, docHasCheckboxes, doc.format)
                     if (item.kind == ItemKind.SECTION) {
                         val level = (headings.lastOrNull { !it.synthetic }?.level ?: 0) + 1
                         while (headings.isNotEmpty() && headings.last().level >= level) headings.removeAt(headings.size - 1)
@@ -239,10 +239,17 @@ object Classifier {
         )
     }
 
-    private fun paragraph(b: DocBlock, id: String, src: SourceRef, links: List<String>, docHasCheckboxes: Boolean): DraftItem {
+    private fun paragraph(
+        b: DocBlock, id: String, src: SourceRef, links: List<String>, docHasCheckboxes: Boolean, format: SourceFormat,
+    ): DraftItem {
         val m = parseMarkers(b.text)
         val box = if (b.checkbox != CheckState.NONE) b.checkbox else m.box
-        val boxMarker = if (b.checkbox != CheckState.NONE) "Word checkbox" else m.marker
+        val boxMarker = when {
+            b.checkbox == CheckState.NONE -> m.marker
+            format == SourceFormat.DOCX -> "Word checkbox"
+            b.checkbox == CheckState.CHECKED -> "[x]"
+            else -> "[ ]"
+        }
 
         fun task(reason: String, confidence: Confidence, completed: Boolean = false, marker: String? = null, review: Boolean = false): DraftItem =
             finishTask(

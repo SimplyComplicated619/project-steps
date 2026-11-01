@@ -98,7 +98,7 @@ fun FlagLabels(flags: Set<TaskFlag>, waitingOn: String?, blockedByDeps: Boolean 
     FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         if (TaskFlag.NEEDS_APPROVAL in flags) Label("⚠ NEEDS APPROVAL", c.approval)
         if (TaskFlag.DESTRUCTIVE in flags) Label("⚠ DESTRUCTIVE ACTION", c.destructive)
-        if (TaskFlag.WAITING_ON in flags) Label("WAITING ON" + (waitingOn?.let { ": ${it.take(30)}" } ?: ""), c.waiting)
+        if (TaskFlag.WAITING_ON in flags) Label("WAITING ON" + (waitingOn?.let { ": " + if (it.length > 32) it.take(31).trimEnd() + "…" else it } ?: ""), c.waiting)
         if (TaskFlag.BLOCKED in flags) Label("BLOCKED", c.blocked)
         if (blockedByDeps) Label("BLOCKED BY STEP", c.blocked)
     }
@@ -272,7 +272,7 @@ fun NoteRow(note: TaskEntity, onOpen: () -> Unit, menu: List<TaskMenuAction>) {
 }
 
 @Composable
-fun SectionHeader(section: SectionEntity, progress: Progress, onToggle: () -> Unit, menu: List<TaskMenuAction>) {
+fun SectionHeader(section: SectionEntity, progress: Progress, onToggle: () -> Unit, menu: List<TaskMenuAction>, topLevel: Int = 1) {
     var menuOpen by remember { mutableStateOf(false) }
     Surface(color = MaterialTheme.colorScheme.surfaceContainer, shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -280,7 +280,7 @@ fun SectionHeader(section: SectionEntity, progress: Progress, onToggle: () -> Un
             modifier = Modifier
                 .combinedClickable(onClick = onToggle, onLongClick = { menuOpen = true }, onClickLabel = if (section.collapsed) "Expand" else "Collapse")
                 .heightIn(min = 56.dp)
-                .padding(start = (12 + (section.headingLevel - 1).coerceIn(0, 4) * 12).dp),
+                .padding(start = (12 + (section.headingLevel - topLevel).coerceIn(0, 4) * 12).dp),
         ) {
             Icon(
                 if (section.collapsed) Icons.Filled.KeyboardArrowDown else Icons.Filled.KeyboardArrowUp,
@@ -397,12 +397,17 @@ fun EmptyState(title: String, body: String, modifier: Modifier = Modifier, actio
 }
 
 @Composable
-fun ListHeading(text: String, modifier: Modifier = Modifier, color: Color = MaterialTheme.colorScheme.primary) {
+fun ListHeading(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.primary,
+    inset: androidx.compose.ui.unit.Dp = 16.dp,
+) {
     Text(
         text.uppercase(),
         style = MaterialTheme.typography.labelLarge,
         fontWeight = FontWeight.Bold,
         color = color,
-        modifier = modifier.padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 6.dp),
+        modifier = modifier.padding(start = inset, end = inset, top = 20.dp, bottom = 6.dp),
     )
 }

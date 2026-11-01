@@ -110,6 +110,8 @@ fun ProjectScreen(vm: MainViewModel, projectId: String) {
     var confirmDelete by remember { mutableStateOf(false) }
 
     val sections = snap.sectionsByProject[projectId].orEmpty()
+    // Indent sub-headings relative to the top imported heading level (auto "General" sections excluded).
+    val topLevel = sections.filter { it.sourceBlockIndex != null }.minOfOrNull { it.headingLevel } ?: 1
     val progress = snap.progress(projectId)
     val status = ProjectStatus.parse(project.status)
 
@@ -185,6 +187,7 @@ fun ProjectScreen(vm: MainViewModel, projectId: String) {
                                 TaskMenuAction("Move down") { vm.moveSection(s.id, +1) },
                                 TaskMenuAction("Delete section…") { deleteSection = s },
                             ),
+                            topLevel = topLevel,
                         )
                     }
                 }
