@@ -26,7 +26,7 @@ object MarkdownReader {
         }
         if (bytes.any { it.toInt() == 0 }) throw ImportException("“$fileName” doesn't look like a text file.")
         var text = String(bytes, Charsets.UTF_8)
-        if (text.startsWith("﻿")) text = text.substring(1)
+        if (text.startsWith("\uFEFF")) text = text.substring(1)
         val format = if (fileName.lowercase().endsWith(".txt")) SourceFormat.TEXT else SourceFormat.MARKDOWN
         return parse(text, fileName, format, limits)
     }
