@@ -96,14 +96,14 @@ class Stage3RemindersTest {
         // SNOOZE button (real PendingIntent -> NotificationActionReceiver)
         n.actions[1].actionIntent.send()
         assertTrue("notification removed after snooze", waitUntil(10_000) { nm.activeNotifications.none { it.id == r.id.hashCode() } })
-        assertTrue("snoozed ~15 min", waitUntil(10_000) { c.db.reminders().get(r.id)?.snoozedUntil != null })
+        assertTrue("snoozed ~15 min", waitUntil(10_000) { runBlocking { c.db.reminders().get(r.id)?.snoozedUntil != null } })
         val snoozed = c.db.reminders().get(r.id)!!
         val minutesAhead = (snoozed.nextFireAt!! - System.currentTimeMillis()) / 60_000.0
         assertTrue("next trigger is the snooze time, was $minutesAhead min", minutesAhead in 13.0..16.0)
 
         // COMPLETE button
         n.actions[0].actionIntent.send()
-        assertTrue("task completed from notification", waitUntil(10_000) { c.db.tasks().get(t.id)?.status == "DONE" })
+        assertTrue("task completed from notification", waitUntil(10_000) { runBlocking { c.db.tasks().get(t.id)?.status == "DONE" } })
         val done = c.db.reminders().get(r.id)!!
         assertTrue(done.itemDone)
         assertNull("no further trigger after completion", done.nextFireAt)
