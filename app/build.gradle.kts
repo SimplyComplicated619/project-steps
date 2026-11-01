@@ -52,7 +52,9 @@ android {
         buildConfig = true
     }
     lint {
-        // Report problems without blocking a debug build; see the lint report for details.
+        // Errors fail the lint task; every issue is also printed to the build log.
+        textReport = true
+        textOutput = file("stdout")
         abortOnError = true
         checkReleaseBuilds = false
         warningsAsErrors = false

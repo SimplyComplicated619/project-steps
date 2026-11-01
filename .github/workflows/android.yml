@@ -6,16 +6,16 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write   # to publish each build's APK as a GitHub Release
 
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -36,7 +36,16 @@ jobs:
         id: tests
         if: always()
         continue-on-error: true
-        run: ./gradlew testDebugUnitTest --stacktrace
+        run: |
+          ./gradlew testDebugUnitTest --stacktrace
+          python3 - <<'PY'
+          import glob, xml.etree.ElementTree as ET
+          t = f = e = s = 0
+          for p in glob.glob("app/build/test-results/testDebugUnitTest/*.xml"):
+              r = ET.parse(p).getroot()
+              t += int(r.get("tests", 0)); f += int(r.get("failures", 0)); e += int(r.get("errors", 0)); s += int(r.get("skipped", 0))
+          print(f"UNIT TESTS: {t} run, {f} failures, {e} errors, {s} skipped")
+          PY
 
       - name: Lint
         id: lint
@@ -60,6 +69,18 @@ jobs:
           path: |
             app/build/outputs/apk/debug/app-debug.apk
             app/build/outputs/apk/debug/app-debug.apk.sha256
+
+      - name: Publish APK as a release
+        if: steps.build.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="build-${{ github.run_number }}"
+          SHA=$(cut -d' ' -f1 app/build/outputs/apk/debug/app-debug.apk.sha256)
+          cp app/build/outputs/apk/debug/app-debug.apk "ProjectSteps-${TAG}-debug.apk"
+          gh release create "$TAG" "ProjectSteps-${TAG}-debug.apk" app/build/outputs/apk/debug/app-debug.apk.sha256 \
+            --prerelease --target "${{ github.sha }}" --title "Project Steps debug ${TAG}" \
+            --notes "Debug APK from commit ${{ github.sha }}. SHA-256: ${SHA}. Unit tests: ${{ steps.tests.outcome }}. Lint: ${{ steps.lint.outcome }}."
 
       - name: Upload reports
         if: always()
