@@ -75,7 +75,7 @@ class Stage1SetupTest {
         screenshot(rule, "07-project-after-complete")
 
         // Task detail screen
-        rule.onNodeWithText("Then try Complete from the notification").performScrollTo().performClick()
+        scrollAndClick(rule, "Then try Complete from the notification")
         waitText(rule, "Add reminder")
         screenshot(rule, "08-task-detail")
         Espresso.pressBack()
